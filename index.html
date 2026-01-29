@@ -17,7 +17,6 @@
 
       --pink:#ff4d8d;
       --pink2:#ff7ab6;
-      --rose:#fb7185;
       --violet:#a855f7;
 
       --yes:#22c55e;
@@ -37,7 +36,7 @@
       overflow-x:hidden;
     }
 
-    /* ===== Valentine background ===== */
+    /* Valentine background */
     .bg{
       position:fixed; inset:0;
       z-index:-3;
@@ -85,7 +84,6 @@
       position:relative;
     }
 
-    /* subtle hearts */
     .panel::after{
       content:"";
       position:absolute; inset:0;
@@ -97,7 +95,7 @@
       opacity:.9;
     }
 
-    /* ===== Left: Stories ===== */
+    /* Left: Stories */
     .stories{ padding:14px; }
     .storiesHeader{
       display:flex;
@@ -199,13 +197,13 @@
       justify-content:center;
     }
 
-    /* ✅ NO CROP: show full media */
+    /* NO CROP */
     .media{
       width:100%;
       height:100%;
-      object-fit:contain;   /* <— key change */
+      object-fit:contain;
       display:block;
-      background:#000;      /* letterbox like a player */
+      background:#000;
     }
 
     .tapzone{
@@ -241,7 +239,7 @@
       z-index:2;
     }
 
-    /* ===== Right: Content ===== */
+    /* Right: Content */
     .content{
       padding:18px;
       display:flex;
@@ -328,6 +326,7 @@
       letter-spacing:.1px;
     }
     .btns{ display:flex; gap:12px; flex-wrap:wrap; }
+
     .yes{
       background: linear-gradient(180deg, rgba(34,197,94,1), rgba(34,197,94,.88));
       color:#06210e;
@@ -371,6 +370,13 @@
     }
     .meet a:hover{ text-decoration:underline; }
 
+    .choiceRow{
+      margin-top:12px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
     .foot{
       margin-top:auto;
       padding-top:8px;
@@ -412,10 +418,12 @@
           <div class="tapzone right" data-nav="next"></div>
         </div>
 
-        <div class="playHint" id="playHint">If a video doesn’t play on Safari, export it as H.264 MP4 (AAC).</div>
+        <div class="playHint" id="playHint">
+          If a video doesn’t autoplay on iPhone, tap it once — iOS blocks some autoplay until the first touch.
+        </div>
       </div>
 
-      <!-- RIGHT: Storyline + Question -->
+      <!-- RIGHT -->
       <div class="panel content">
         <div class="hero">
           <h1 id="heroTitle">Heyyy Kez 👀</h1>
@@ -442,10 +450,17 @@
 
           <div class="small" id="hint"></div>
 
+          <!-- result + choices -->
           <div class="result" id="result">
             <div class="resultTitle">Yessss! 🎉💘</div>
             <div class="meet" id="meetText"></div>
-            <div class="small">Opening WhatsApp… 😌</div>
+
+            <div class="choiceRow">
+              <button class="btn nextBtn" id="waChoice" type="button">Send WhatsApp 💬</button>
+              <button class="btn nextBtn" id="calChoice" type="button">Add to Calendar 📅</button>
+            </div>
+
+            <div class="small" id="choiceHint">Choose what you want to do next 😌</div>
           </div>
         </div>
 
@@ -466,10 +481,11 @@
       { type: "image", src: "last1.jpg",  label: "💗" },
       { type: "image", src: "last2.jpg",  label: "💗" },
 
-      { type: "video", src: "v2first.mp4",  label: "🎬", mutedAutoplay: true  },
-      { type: "video", src: "v2second.mp4", label: "🎬", mutedAutoplay: true  },
-      { type: "video", src: "v31.mp4",      label: "🎬", mutedAutoplay: true },
-      { type: "video", src: "v32.mp4",      label: "🎬", mutedAutoplay: true }
+      // All videos muted + autoplay for mobile compatibility
+      { type: "video", src: "v2first.mp4",  label: "🎬" },
+      { type: "video", src: "v2second.mp4", label: "🎬" },
+      { type: "video", src: "v31.mp4",      label: "🎬" },
+      { type: "video", src: "v32.mp4",      label: "🎬" }
     ];
 
     // ==========================
@@ -495,26 +511,24 @@
           img.className = "media";
           img.src = m.src;
           img.alt = "memory";
-
-          // helpful debugging if something is missing
-          img.onerror = () => {
-            console.log("Missing image:", img.src);
-            img.alt = "Missing file: " + img.src;
-          };
-
+          img.loading = "lazy";
+          img.decoding = "async";
+          img.onerror = () => console.log("Missing image:", img.src);
           s.appendChild(img);
         } else {
           const v = document.createElement("video");
           v.className = "media";
+
+          // mobile autoplay requirements
+          v.muted = true;
+          v.setAttribute("muted", "");
+          v.autoplay = true;
+          v.loop = true;
+          v.playsInline = true;
           v.setAttribute("playsinline", "");
           v.setAttribute("webkit-playsinline", "");
           v.preload = "metadata";
-          v.loop = true;
-
-          // Safari: autoplay requires muted
-          v.muted = !!m.mutedAutoplay;
-          v.controls = !m.mutedAutoplay;
-          if (m.mutedAutoplay) v.autoplay = true;
+          v.controls = false;
 
           const src = document.createElement("source");
           src.src = m.src;
@@ -522,7 +536,6 @@
           v.appendChild(src);
 
           v.onerror = () => console.log("Video error:", m.src);
-
           s.appendChild(v);
         }
 
@@ -565,13 +578,11 @@
       const s = slides()[idx];
       const v = s?.querySelector("video");
       if (!v) return;
-      if (!v.autoplay) return;
 
       try{
         await v.play();
         playHint.style.display = "none";
       }catch(e){
-        v.controls = true;
         playHint.style.display = "block";
       }
     }
@@ -628,6 +639,7 @@
       scrollT = setTimeout(() => restart(), 110);
     });
 
+    // Tap zones (don’t interfere with video taps)
     frame.addEventListener("click", (e) => {
       if (e.target.closest("video") || e.target.closest("button")) return;
       const nav = e.target.closest(".tapzone")?.dataset.nav;
@@ -635,16 +647,22 @@
       if (nav === "next") goTo(idx + 1);
     });
 
+    // Hold to pause
     frame.addEventListener("touchstart", () => { hold = true; }, { passive:true });
     frame.addEventListener("touchend", () => { hold = false; }, { passive:true });
     frame.addEventListener("mousedown", () => { hold = true; });
     frame.addEventListener("mouseup", () => { hold = false; });
 
-    frame.addEventListener("pointerdown", async (e) => {
-      const v = e.target.closest("video");
-      if (!v) return;
-      try{ await v.play(); playHint.style.display = "none"; }catch(_){}
-    }, true);
+    // First touch unlock (helps iOS autoplay)
+    let unlocked = false;
+    document.addEventListener("touchstart", () => {
+      if (unlocked) return;
+      unlocked = true;
+      document.querySelectorAll("video").forEach(v => {
+        v.muted = true;
+        v.play().catch(()=>{});
+      });
+    }, { passive:true, once:true });
 
     fsBtn.addEventListener("click", (e) => {
       e.preventDefault(); e.stopPropagation();
@@ -655,7 +673,7 @@
     start();
 
     // ==========================
-    // 3) Storyline flow (your text)
+    // 3) Storyline flow
     // ==========================
     const heroTitle = document.getElementById("heroTitle");
     const heroSub = document.getElementById("heroSub");
@@ -732,7 +750,7 @@ I don’t say it often, but you really mean more to me than you probably realize
     renderStep();
 
     // ==========================
-    // 4) Valentine + WhatsApp
+    // 4) Valentine + Choices
     // ==========================
     const meetup = {
       title: "Meet me at: Café Bar Noire",
@@ -751,7 +769,10 @@ I don’t say it often, but you really mean more to me than you probably realize
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
 
-    // ✅ Set B (Funny Ghana vibes)
+    const waBtn = document.getElementById("waChoice");
+    const calBtn = document.getElementById("calChoice");
+    const choiceHint = document.getElementById("choiceHint");
+
     const noQuestions = [
       "Ah Kez why? 🥺",
       "So after all my good behavior?? 😭",
@@ -766,11 +787,51 @@ I don’t say it often, but you really mean more to me than you probably realize
 
     let noCount = 0;
 
-    function showMeetupAndWhatsApp(){
+    function openWhatsApp(){
+      const wa = `https://wa.me/${YOUR_WA}?text=${encodeURIComponent(WA_MESSAGE)}`;
+      window.location.href = wa;
+    }
+
+    function downloadICS(){
+      // Change to your actual date/time if needed:
+      // Format: YYYYMMDDTHHMMSS (local time, no Z)
+    const start = "20260214T210000"; // Feb 14, 2026 - 9:00 PM
+const end   = "20260214T230000"; // Feb 14, 2026 - 11:00 PM
+
+
+     const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Valentine//aseye//EN
+BEGIN:VEVENT
+UID:${Date.now()}@aseye
+DTSTAMP:${new Date().toISOString().replace(/[-:]/g,"").split(".")[0]}Z
+DTSTART:${start}
+DTEND:${end}
+SUMMARY:Valentine’s Date at Café Bar Noire 💘
+DESCRIPTION:Meet me at Café Bar Noire • 9:00 PM • Valentine’s Day 2026
+LOCATION:Café Bar Noire
+END:VEVENT
+END:VCALENDAR`;
+
+
+      const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "valentines-date.ics";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }
+
+    function showChoices(){
       qEl.textContent = "Best decision ever 😌💖";
       hintEl.textContent = "";
       noBtn.style.display = "none";
-      yesBtn.textContent = "Yay!! 💃🏽";
+      yesBtn.style.display = "none";
       resultEl.style.display = "block";
 
       const safeMaps = meetup.mapsUrl && meetup.mapsUrl.startsWith("http") ? meetup.mapsUrl : "";
@@ -780,12 +841,9 @@ I don’t say it often, but you really mean more to me than you probably realize
         ${meetup.note ? `<div>${meetup.note}</div>` : ``}
         ${safeMaps ? `<div style="margin-top:10px;">📍 <a href="${safeMaps}" target="_blank" rel="noopener">Open location in Maps</a></div>` : ``}
       `;
-
-      const wa = `https://wa.me/${YOUR_WA}?text=${encodeURIComponent(WA_MESSAGE)}`;
-      setTimeout(() => { window.location.href = wa; }, 900);
     }
 
-    yesBtn.addEventListener("click", showMeetupAndWhatsApp);
+    yesBtn.addEventListener("click", showChoices);
 
     noBtn.addEventListener("click", () => {
       qEl.textContent = noQuestions[Math.min(noCount, noQuestions.length - 1)];
@@ -800,8 +858,16 @@ I don’t say it often, but you really mean more to me than you probably realize
 
       noCount++;
     });
+
+    waBtn.addEventListener("click", () => {
+      choiceHint.textContent = "Opening WhatsApp… 💬";
+      openWhatsApp();
+    });
+
+    calBtn.addEventListener("click", () => {
+      choiceHint.textContent = "Adding to calendar… 📅";
+      downloadICS();
+    });
   </script>
 </body>
 </html>
-
-
