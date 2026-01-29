@@ -9,11 +9,16 @@
   <style>
     :root{
       --bg:#070711;
-      --text:#f6f6ff;
-      --muted:rgba(245,245,255,.72);
+      --text:#fff7fb;
+      --muted:rgba(255,247,251,.74);
       --stroke:rgba(255,255,255,.14);
-      --glass:rgba(255,255,255,.08);
+      --glass:rgba(255,255,255,.09);
       --glass2:rgba(255,255,255,.05);
+
+      --pink:#ff4d8d;
+      --pink2:#ff7ab6;
+      --rose:#fb7185;
+      --violet:#a855f7;
 
       --yes:#22c55e;
       --no:#ef4444;
@@ -32,21 +37,23 @@
       overflow-x:hidden;
     }
 
-    /* ===== background (optional video) ===== */
+    /* ===== Valentine background ===== */
     .bg{
       position:fixed; inset:0;
       z-index:-3;
       background:
-        radial-gradient(1100px 700px at 25% 15%, rgba(168,85,247,.25), transparent 60%),
-        radial-gradient(900px 650px at 80% 55%, rgba(236,72,153,.18), transparent 60%),
-        linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.82));
+        radial-gradient(900px 650px at 20% 10%, rgba(255,77,141,.22), transparent 60%),
+        radial-gradient(900px 650px at 85% 55%, rgba(168,85,247,.18), transparent 60%),
+        radial-gradient(700px 520px at 55% 85%, rgba(255,122,182,.16), transparent 60%),
+        linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.86));
     }
-    .bg video{
-      position:absolute; inset:0;
-      width:100%; height:100%;
-      object-fit:cover;
-      filter:saturate(1.05) contrast(1.05);
-      transform:scale(1.02);
+    .bg::before{
+      content:"";
+      position:absolute; inset:-20%;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,.10), transparent 30%),
+        radial-gradient(circle at 80% 70%, rgba(255,255,255,.08), transparent 28%);
+      filter: blur(18px);
       opacity:.35;
     }
 
@@ -75,6 +82,19 @@
       box-shadow: var(--shadow);
       backdrop-filter: blur(12px);
       overflow:hidden;
+      position:relative;
+    }
+
+    /* subtle hearts */
+    .panel::after{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255,77,141,.12), transparent 35%),
+        radial-gradient(circle at 85% 25%, rgba(255,122,182,.10), transparent 35%),
+        radial-gradient(circle at 25% 80%, rgba(168,85,247,.10), transparent 40%);
+      pointer-events:none;
+      opacity:.9;
     }
 
     /* ===== Left: Stories ===== */
@@ -85,20 +105,20 @@
       align-items:center;
       gap:10px;
       padding:6px 6px 12px;
+      position:relative;
+      z-index:2;
     }
-    .brand{
-      display:flex; align-items:center; gap:10px;
-    }
+    .brand{ display:flex; align-items:center; gap:10px; }
     .logoDot{
       width:10px; height:10px; border-radius:999px;
       background: radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,.2));
-      box-shadow: 0 0 0 6px rgba(255,255,255,.06);
+      box-shadow: 0 0 0 7px rgba(255,77,141,.12);
     }
     .brandName{
-      font-weight:900;
+      font-weight:950;
       letter-spacing:.2px;
       font-size:14px;
-      color:rgba(255,255,255,.92);
+      color:rgba(255,247,251,.94);
     }
     .chip{
       font-size:12px;
@@ -106,7 +126,7 @@
       border-radius:999px;
       background: rgba(0,0,0,.35);
       border:1px solid rgba(255,255,255,.14);
-      color:rgba(255,255,255,.80);
+      color:rgba(255,247,251,.82);
       white-space:nowrap;
     }
 
@@ -115,10 +135,11 @@
       border-radius:22px;
       overflow:hidden;
       border:1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.18);
+      background: rgba(0,0,0,.30);
       aspect-ratio: 9 / 16;
       max-height: 76vh;
       width:100%;
+      z-index:2;
     }
 
     .progress{
@@ -136,7 +157,7 @@
     }
     .bar span{
       display:block; height:100%; width:0%;
-      background: rgba(255,255,255,.92);
+      background: linear-gradient(90deg, rgba(255,255,255,.92), rgba(255,255,255,.82));
       transform-origin:left;
     }
 
@@ -153,7 +174,7 @@
       border-radius:999px;
       background: rgba(0,0,0,.45);
       border:1px solid rgba(255,255,255,.16);
-      color:rgba(255,255,255,.92);
+      color:rgba(255,247,251,.94);
       backdrop-filter: blur(8px);
     }
 
@@ -173,12 +194,18 @@
       position:relative;
       scroll-snap-align:start;
       background: rgba(0,0,0,.08);
+      display:flex;
+      align-items:center;
+      justify-content:center;
     }
+
+    /* ✅ NO CROP: show full media */
     .media{
-      width:100%; height:100%;
-      object-fit:cover;
+      width:100%;
+      height:100%;
+      object-fit:contain;   /* <— key change */
       display:block;
-      background: rgba(0,0,0,.2);
+      background:#000;      /* letterbox like a player */
     }
 
     .tapzone{
@@ -207,9 +234,11 @@
     .playHint{
       margin-top:10px;
       font-size:12px;
-      color:rgba(255,255,255,.72);
+      color:rgba(255,247,251,.72);
       text-align:center;
       display:none;
+      position:relative;
+      z-index:2;
     }
 
     /* ===== Right: Content ===== */
@@ -218,12 +247,18 @@
       display:flex;
       flex-direction:column;
       gap:14px;
+      position:relative;
+      z-index:2;
     }
     .hero h1{
       margin:0;
       font-size:28px;
       letter-spacing:.2px;
       line-height:1.15;
+      background: linear-gradient(90deg, #fff, rgba(255,122,182,.95));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
     }
     .hero p{
       margin:10px 0 0;
@@ -239,7 +274,7 @@
     }
     .kicker{
       font-size:12px;
-      color:rgba(255,255,255,.78);
+      color:rgba(255,247,251,.80);
       margin-bottom:10px;
       letter-spacing:.2px;
     }
@@ -247,7 +282,7 @@
       margin:0;
       font-size:16px;
       line-height:1.65;
-      color:rgba(255,255,255,.94);
+      color:rgba(255,247,251,.94);
       white-space:pre-line;
     }
     .row{
@@ -263,7 +298,7 @@
       border-radius:999px;
       background: rgba(0,0,0,.35);
       border:1px solid rgba(255,255,255,.14);
-      color:rgba(255,255,255,.82);
+      color:rgba(255,247,251,.86);
       white-space:nowrap;
     }
 
@@ -272,16 +307,18 @@
       border-radius:16px;
       padding:12px 16px;
       font-size:16px;
-      font-weight:900;
+      font-weight:950;
       cursor:pointer;
-      transition: transform .06s ease, filter .15s ease;
+      transition: transform .06s ease, filter .15s ease, box-shadow .15s ease;
     }
     .btn:active{ transform: translateY(1px) scale(.99); }
+
     .nextBtn{
       background: rgba(255,255,255,.12);
       border:1px solid rgba(255,255,255,.18);
-      color: rgba(255,255,255,.92);
+      color: rgba(255,247,251,.94);
     }
+    .nextBtn:hover{ filter: brightness(1.08); }
 
     .questionWrap{ display:none; }
     .q{
@@ -291,12 +328,20 @@
       letter-spacing:.1px;
     }
     .btns{ display:flex; gap:12px; flex-wrap:wrap; }
-    .yes{ background: var(--yes); color:#06210e; }
-    .no{ background: var(--no); color:#2a0606; }
+    .yes{
+      background: linear-gradient(180deg, rgba(34,197,94,1), rgba(34,197,94,.88));
+      color:#06210e;
+      box-shadow: 0 12px 30px rgba(34,197,94,.18);
+    }
+    .no{
+      background: linear-gradient(180deg, rgba(239,68,68,1), rgba(239,68,68,.88));
+      color:#2a0606;
+      box-shadow: 0 12px 30px rgba(239,68,68,.16);
+    }
 
     .small{
       font-size:13px;
-      color:rgba(245,245,255,.75);
+      color:rgba(255,247,251,.78);
       margin-top:10px;
       min-height:18px;
     }
@@ -306,38 +351,38 @@
       border-radius:18px;
       padding:14px;
       display:none;
-      background: rgba(34,197,94,.12);
-      border: 1px solid rgba(34,197,94,.25);
+      background: rgba(255,77,141,.10);
+      border: 1px solid rgba(255,77,141,.22);
     }
     .resultTitle{
       font-weight:1000;
       font-size:18px;
       margin-bottom:8px;
+      color:rgba(255,247,251,.96);
     }
     .meet{
-      color:rgba(255,255,255,.95);
+      color:rgba(255,247,251,.94);
       line-height:1.55;
     }
-    .meet a{ color:#a7f3d0; font-weight:900; text-decoration:none; }
+    .meet a{
+      color:rgba(255,122,182,.95);
+      font-weight:950;
+      text-decoration:none;
+    }
     .meet a:hover{ text-decoration:underline; }
 
     .foot{
       margin-top:auto;
       padding-top:8px;
       font-size:12px;
-      color:rgba(255,255,255,.52);
+      color:rgba(255,247,251,.58);
       text-align:center;
     }
   </style>
 </head>
 
 <body>
-  <div class="bg">
-    <!-- Optional: put bg.mp4 in repo root. If missing, it just won’t show -->
-    <video autoplay muted loop playsinline preload="metadata" id="bgVideo">
-      <source src="bg.mp4" type="video/mp4">
-    </video>
-  </div>
+  <div class="bg"></div>
 
   <main class="wrap">
     <section class="shell">
@@ -404,7 +449,7 @@
           </div>
         </div>
 
-        <div class="foot">Made with ❤️ (and a little courage)</div>
+        <div class="foot">Happy Valentine’s in advance 💗</div>
       </div>
 
     </section>
@@ -450,6 +495,13 @@
           img.className = "media";
           img.src = m.src;
           img.alt = "memory";
+
+          // helpful debugging if something is missing
+          img.onerror = () => {
+            console.log("Missing image:", img.src);
+            img.alt = "Missing file: " + img.src;
+          };
+
           s.appendChild(img);
         } else {
           const v = document.createElement("video");
@@ -468,6 +520,8 @@
           src.src = m.src;
           src.type = "video/mp4";
           v.appendChild(src);
+
+          v.onerror = () => console.log("Video error:", m.src);
 
           s.appendChild(v);
         }
@@ -567,7 +621,6 @@
 
     function restart(){ stopAnim(); start(); }
 
-    // scroll sync
     let scrollT = null;
     rail.addEventListener("scroll", () => {
       setIndexFromScroll();
@@ -575,7 +628,6 @@
       scrollT = setTimeout(() => restart(), 110);
     });
 
-    // tap zones
     frame.addEventListener("click", (e) => {
       if (e.target.closest("video") || e.target.closest("button")) return;
       const nav = e.target.closest(".tapzone")?.dataset.nav;
@@ -583,20 +635,17 @@
       if (nav === "next") goTo(idx + 1);
     });
 
-    // hold to pause
     frame.addEventListener("touchstart", () => { hold = true; }, { passive:true });
     frame.addEventListener("touchend", () => { hold = false; }, { passive:true });
     frame.addEventListener("mousedown", () => { hold = true; });
     frame.addEventListener("mouseup", () => { hold = false; });
 
-    // tap video to play if blocked
     frame.addEventListener("pointerdown", async (e) => {
       const v = e.target.closest("video");
       if (!v) return;
       try{ await v.play(); playHint.style.display = "none"; }catch(_){}
     }, true);
 
-    // fullscreen
     fsBtn.addEventListener("click", (e) => {
       e.preventDefault(); e.stopPropagation();
       if (frame.requestFullscreen) frame.requestFullscreen();
@@ -668,9 +717,6 @@ I don’t say it often, but you really mean more to me than you probably realize
       kicker.textContent = s.kicker;
       storyText.textContent = s.text;
       pagePill.textContent = `${step + 1} / ${storySteps.length}`;
-
-      if (step === storySteps.length - 1) nextBtn.textContent = "Next ➜";
-      else nextBtn.textContent = "Next ➜";
     }
 
     nextBtn.addEventListener("click", () => {
@@ -705,12 +751,17 @@ I don’t say it often, but you really mean more to me than you probably realize
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
 
+    // ✅ Set B (Funny Ghana vibes)
     const noQuestions = [
-      "Are you sure? 🥺",
-      "What if I bath today? 😭",
-      "What if I buy you kenkey? 😙😙",
-      "Be honest… you’re smiling right now 😌",
-      "Alright, choose wisely… 💘"
+      "Ah Kez why? 🥺",
+      "So after all my good behavior?? 😭",
+      "What if I buy you kenkey + fish? 😙",
+      "Okay okay… 2 kenkeys then 💔",
+      "And I’ll stop shouting at you for eating late 😭",
+      "Ei so you want me to suffer? 😩",
+      "Just press yes wai 😌",
+      "You’re enjoying this too much 😂",
+      "Alright… choose wisely 💘"
     ];
 
     let noCount = 0;
@@ -749,12 +800,7 @@ I don’t say it often, but you really mean more to me than you probably realize
 
       noCount++;
     });
-
-    // background video fallback
-    const bgVideo = document.getElementById("bgVideo");
-    if (bgVideo){
-      bgVideo.addEventListener("error", () => { bgVideo.style.display = "none"; });
-    }
   </script>
 </body>
 </html>
+
