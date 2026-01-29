@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>💌 Valentine?</title>
+
+  <style>
+    :root{
+      --bg:#0b0b12; --text:#f5f5ff; --muted:#b9b9d6;
+      --yes:#22c55e; --no:#ef4444;
+    }
+
+    body{
+      margin:0; min-height:100vh; display:grid; place-items:center;
+      background: radial-gradient(1200px 600px at 50% 20%, #2a1b5a 0%, var(--bg) 55%);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      padding:22px;
+    }
+
+    .card{
+      width:min(420px, 100%);
+      background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:22px;
+      box-shadow: 0 18px 60px rgba(0,0,0,0.45);
+      padding:16px;
+      backdrop-filter: blur(10px);
+    }
+
+    h1{ margin:12px 0 8px; font-size:26px; letter-spacing:0.2px; }
+    p{ margin:0 0 12px; color:var(--muted); line-height:1.55; }
+    .question{ font-size:20px; margin:12px 0 16px; color:var(--text); }
+
+    .btns{ display:flex; gap:12px; flex-wrap:wrap; }
+    button{
+      border:0; border-radius:14px; padding:12px 16px; font-size:16px; cursor:pointer;
+      transition: transform .06s ease, filter .15s ease;
+    }
+    button:active{ transform: translateY(1px) scale(.99); }
+    .yes{ background:var(--yes); color:#07210f; font-weight:800; }
+    .no{ background:var(--no); color:#2a0606; font-weight:800; }
+    .small{ font-size:13px; opacity:.9; }
+
+    .result{
+      margin-top:14px;
+      background:rgba(34,197,94,0.12);
+      border:1px solid rgba(34,197,94,0.25);
+      border-radius:16px;
+      padding:14px;
+      display:none;
+    }
+
+    a{ color:#a7f3d0; font-weight:800; text-decoration:none; }
+    a:hover{ text-decoration:underline; }
+
+    /* ===== IG Stories Wrapper ===== */
+    .stories{
+      border-radius:20px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,0.14);
+      background:rgba(0,0,0,0.15);
+      position:relative;
+      margin:6px 0 12px;
+      aspect-ratio: 9 / 16;
+      width:100%;
+      max-height:72vh;
+    }
+
+    /* Progress bars */
+    .progress{
+      position:absolute;
+      top:10px; left:10px; right:10px;
+      display:flex; gap:6px;
+      z-index:5;
+      pointer-events:none;
+    }
+    .bar{ flex:1; height:3px; border-radius:999px; background: rgba(255,255,255,0.25); overflow:hidden; }
+    .bar > span{ display:block; height:100%; width:0%; background: rgba(255,255,255,0.9); transform-origin:left; }
+
+    .storyTag{
+      position:absolute;
+      top:20px; left:14px;
+      z-index:6;
+      font-size:12px;
+      padding:7px 10px;
+      border-radius:999px;
+      background: rgba(0,0,0,0.45);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.92);
+      backdrop-filter: blur(6px);
+      pointer-events:none;
+    }
+
+    /* Slide rail */
+    .rail{
+      height:100%;
+      display:flex;
+      overflow-x:auto;
+      scroll-snap-type:x mandatory;
+      -webkit-overflow-scrolling:touch;
+      scroll-behavior:smooth;
+    }
+    .rail::-webkit-scrollbar{ display:none; }
+
+    .slide{
+      flex:0 0 100%;
+      scroll-snap-align:start;
+      position:relative;
+      height:100%;
+      background:rgba(0,0,0,0.12);
+    }
+
+    .media{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      background:rgba(0,0,0,0.2);
+    }
+
+    /* Tap zones */
+    .tapzone{
+      position:absolute;
+      top:0; bottom:0;
+      width:50%;
+      z-index:6;
+    }
+    .tapzone.left{ left:0; }
+    .tapzone.right{ right:0; }
+
+    /* Fullscreen button */
+    .fullscreen-btn{
+      position:absolute;
+      right:12px;
+      bottom:12px;
+      z-index:7;
+      background:rgba(0,0,0,0.55);
+      color:#fff;
+      border:none;
+      border-radius:12px;
+      padding:8px 10px;
+      font-size:12px;
+      cursor:pointer;
+      user-select:none;
+    }
+    :fullscreen .fullscreen-btn { display:none; }
+    :-webkit-full-screen .fullscreen-btn { display:none; }
+
+    .slide:fullscreen,
+    .slide:-webkit-full-screen{
+      width:100vw; height:100vh; background:#000;
+    }
+    .slide:fullscreen .media,
+    .slide:-webkit-full-screen .media{
+      width:100%; height:100%;
+      object-fit:contain;
+      background:#000;
+    }
+
+    /* ===== Text story box ===== */
+    .storyline{
+      margin-top:6px;
+      border:1px solid rgba(255,255,255,0.12);
+      background:rgba(255,255,255,0.04);
+      border-radius:18px;
+      padding:14px;
+    }
+    .storyline .kicker{
+      font-size:12px;
+      color:rgba(255,255,255,0.75);
+      margin-bottom:8px;
+      letter-spacing:.2px;
+    }
+    .storyline .text{
+      font-size:16px;
+      color:var(--text);
+      line-height:1.55;
+      margin:0;
+      white-space:pre-line;
+    }
+    .nextRow{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-top:12px;
+      gap:12px;
+    }
+    .pill{
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(0,0,0,0.35);
+      border:1px solid rgba(255,255,255,0.14);
+      color:rgba(255,255,255,0.85);
+    }
+    .nextBtn{
+      background:rgba(255,255,255,0.12);
+      color:var(--text);
+      font-weight:900;
+      border:1px solid rgba(255,255,255,0.18);
+    }
+    .hidden{ display:none !important; }
+
+    .playHint{
+      margin-top:8px;
+      font-size:12px;
+      color:rgba(255,255,255,0.75);
+      display:none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+
+    <!-- IG Stories Media -->
+    <div class="stories" id="stories">
+      <div class="progress" id="progress"></div>
+      <div class="storyTag">Memories 💗 (tap / hold)</div>
+
+      <div class="rail" id="rail">
+        <div class="slide" data-type="img">
+          <img class="media" src="assets/Dee1.jpeg" alt="Photo 1">
+          <button class="fullscreen-btn" type="button">⛶</button>
+          <div class="tapzone left"></div><div class="tapzone right"></div>
+        </div>
+
+        <div class="slide" data-type="img">
+          <img class="media" src="assets/dee2.jpeg" alt="Photo 2">
+          <button class="fullscreen-btn" type="button">⛶</button>
+          <div class="tapzone left"></div><div class="tapzone right"></div>
+        </div>
+
+        <!-- Video 1 (autoplay, muted) -->
+        <div class="slide" data-type="video">
+          <video class="media" muted autoplay loop playsinline preload="metadata">
+            <source src="assets/v1.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
+            <source src="assets/v1.mp4" type="video/mp4">
+            Sorry, your browser can’t play this video.
+          </video>
+          <button class="fullscreen-btn" type="button">⛶</button>
+          <div class="tapzone left"></div><div class="tapzone right"></div>
+        </div>
+
+        <!-- Video 2 (controls + muted for iPhone compatibility) -->
+        <div class="slide" data-type="video">
+          <video class="media" muted playsinline controls preload="metadata">
+            <source src="assets/v2.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
+            <source src="assets/v2.mp4" type="video/mp4">
+            Sorry, your browser can’t play this video.
+          </video>
+          <button class="fullscreen-btn" type="button">⛶</button>
+          <div class="tapzone left"></div><div class="tapzone right"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="playHint" id="playHint">If a video doesn’t play, tap it once ❤️</div>
+
+    <!-- Step-by-step text (shows first) -->
+    <div class="storyline" id="storyBox">
+      <div class="kicker" id="kicker">Hey you 👀</div>
+      <p class="text" id="storyText"></p>
+
+      <div class="nextRow">
+        <span class="pill" id="pagePill">1 / 4</span>
+        <button class="nextBtn" id="nextBtn" type="button">Next ➜</button>
+      </div>
+    </div>
+
+    <!-- Valentine question (hidden until last Next) -->
+    <div id="valSection" class="hidden">
+      <div id="q" class="question">Will you be my Valentine? 💌</div>
+
+      <div class="btns">
+        <button class="yes" id="yesBtn">Yes ❤️</button>
+        <button class="no" id="noBtn">No 🙃</button>
+      </div>
+
+      <p class="small" id="hint" style="margin-top:12px;"></p>
+
+      <div class="result" id="result">
+        <div style="font-size:20px; font-weight:900; margin-bottom:8px;">Yessss! 🎉💘</div>
+        <div id="meetText" style="color:var(--text); line-height:1.45;"></div>
+        <div style="margin-top:10px; color:var(--muted);" class="small">
+          Screenshot this so you don’t forget 😌
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // =======================
+    // 1) IG Stories media logic
+    // =======================
+    const rail = document.getElementById("rail");
+    const progress = document.getElementById("progress");
+    const playHint = document.getElementById("playHint");
+
+    if (rail && progress) {
+      const slides = Array.from(rail.querySelectorAll(".slide"));
+
+      let idx = 0;
+      let running = false;
+      let hold = false;
+      let rafId = null;
+      let scrollT = null;
+      let barStart = 0;
+      let barDuration = 3500;
+
+      const durationFor = (i) => (slides[i].dataset.type === "video" ? 6500 : 3500);
+
+      progress.innerHTML = slides.map(() => `<div class="bar"><span></span></div>`).join("");
+      const bars = Array.from(progress.querySelectorAll(".bar > span"));
+
+      const setIndexFromScroll = () => {
+        const w = rail.clientWidth || 1;
+        const i = Math.round(rail.scrollLeft / w);
+        idx = Math.max(0, Math.min(slides.length - 1, i));
+      };
+
+      const resetBars = () => {
+        bars.forEach((b, i) => b.style.width = (i < idx ? "100%" : "0%"));
+      };
+
+      const stopAnim = () => {
+        running = false;
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = null;
+      };
+
+      const pauseAllVideos = () => {
+        slides.forEach(s => {
+          const v = s.querySelector("video");
+          if (v && !v.paused) v.pause();
+        });
+      };
+
+      const tryPlayActiveVideo = async () => {
+        const slide = slides[idx];
+        const v = slide.querySelector("video");
+        if (!v) return;
+
+        try {
+          // If it has autoplay, try to start it.
+          await v.play();
+          playHint.style.display = "none";
+        } catch (e) {
+          // Autoplay blocked or codec issue — show hint + keep controls
+          v.controls = true;
+          playHint.style.display = "block";
+        }
+      };
+
+      const goTo = (i) => {
+        idx = (i + slides.length) % slides.length;
+        rail.scrollTo({ left: rail.clientWidth * idx, behavior: "smooth" });
+        restart();
+      };
+
+      const tick = (t) => {
+        if (!running) return;
+        if (hold) { rafId = requestAnimationFrame(tick); return; }
+
+        const p = Math.min(1, (t - barStart) / barDuration);
+        bars[idx].style.width = (p * 100).toFixed(2) + "%";
+
+        if (p >= 1) goTo(idx + 1);
+        else rafId = requestAnimationFrame(tick);
+      };
+
+      const start = () => {
+        if (running) return;
+        running = true;
+        resetBars();
+        barDuration = durationFor(idx);
+        barStart = performance.now();
+        rafId = requestAnimationFrame(tick);
+
+        // media handling
+        pauseAllVideos();
+        tryPlayActiveVideo();
+      };
+
+      const restart = () => { stopAnim(); start(); };
+
+      rail.addEventListener("scroll", () => {
+        setIndexFromScroll();
+        clearTimeout(scrollT);
+        scrollT = setTimeout(() => restart(), 120);
+      });
+
+      rail.addEventListener("click", (e) => {
+        if (e.target.closest(".fullscreen-btn")) return;
+        const left = e.target.closest(".tapzone.left");
+        const right = e.target.closest(".tapzone.right");
+        if (left) goTo(idx - 1);
+        if (right) goTo(idx + 1);
+      });
+
+      rail.addEventListener("touchstart", () => { hold = true; }, { passive:true });
+      rail.addEventListener("touchend", () => { hold = false; }, { passive:true });
+      rail.addEventListener("mousedown", () => { hold = true; });
+      rail.addEventListener("mouseup", () => { hold = false; });
+
+      // Tap on video to play if blocked
+      rail.addEventListener("pointerdown", async (e) => {
+        const v = e.target.closest("video");
+        if (!v) return;
+        try { await v.play(); playHint.style.display = "none"; } catch (_) {}
+      });
+
+      // Fullscreen the SLIDE
+      slides.forEach((s) => {
+        const btn = s.querySelector(".fullscreen-btn");
+        if (!btn) return;
+
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const slide = btn.closest(".slide");
+          const video = slide.querySelector("video");
+
+          if (slide.requestFullscreen) slide.requestFullscreen();
+          else if (slide.webkitRequestFullscreen) slide.webkitRequestFullscreen();
+          else if (video && video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+        }, true);
+      });
+
+      resetBars();
+      start();
+    }
+
+    // =======================
+    // 2) Text storyline (4 steps exactly as you want)
+    // =======================
+    const storySteps = [
+      {
+        kicker: "Hey you 👀",
+        text:
+`Just pause for a second…
+I made something small for you.
+
+Because you’ve been on my mind a little too much lately 😌`
+      },
+      {
+        kicker: "",
+        text:
+`I love the way you tease me.
+The way you make me feel, the way you feed me,
+and how you turn normal moments into something special.`
+      },
+      {
+        kicker: "",
+        text:
+`I have one important question for you…`
+      },
+      {
+        kicker: "",
+        text:
+`Okay… click next 😄`
+      }
+    ];
+
+    const storyText = document.getElementById("storyText");
+    const kicker = document.getElementById("kicker");
+    const pagePill = document.getElementById("pagePill");
+    const nextBtn = document.getElementById("nextBtn");
+    const storyBox = document.getElementById("storyBox");
+    const valSection = document.getElementById("valSection");
+
+    let step = 0;
+
+    function renderStep() {
+      const s = storySteps[step];
+      kicker.textContent = s.kicker || " ";
+      storyText.textContent = s.text;
+      pagePill.textContent = `${step + 1} / ${storySteps.length}`;
+      nextBtn.textContent = "Next ➜";
+    }
+
+    nextBtn.addEventListener("click", () => {
+      if (step < storySteps.length - 1) {
+        step++;
+        renderStep();
+      } else {
+        storyBox.classList.add("hidden");
+        valSection.classList.remove("hidden");
+      }
+    });
+
+    renderStep();
+
+    // =======================
+    // 3) Valentine logic + WhatsApp
+    // =======================
+    const meetup = {
+      title: "Meet me at: Café Bar Noire",
+      time: "Time: 9:00pm",
+      note: "Dress code: Maximum Exposure 😍",
+      mapsUrl: "https://maps.app.goo.gl/K8G3oa5vZDsc2ncR6"
+    };
+
+    const noQuestions = [
+      "Are you sure? 🥺",
+      "What if I bath today? 😭",
+      "What if I buy you kenkey? 😙😙",
+      "Be honest… you’re smiling right now 😌",
+      "Alright, choose wisely… 💘"
+    ];
+
+    const qEl = document.getElementById("q");
+    const hintEl = document.getElementById("hint");
+    const resultEl = document.getElementById("result");
+    const meetTextEl = document.getElementById("meetText");
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+
+    let noCount = 0;
+
+    function showMeetup() {
+      qEl.textContent = "Best decision ever 😌💖";
+      hintEl.textContent = "";
+      noBtn.style.display = "none";
+      yesBtn.textContent = "Yay!! 💃🏽";
+      resultEl.style.display = "block";
+
+      const safeMaps = meetup.mapsUrl && meetup.mapsUrl.startsWith("http") ? meetup.mapsUrl : "";
+      meetTextEl.innerHTML = `
+        <div><strong>${meetup.title}</strong></div>
+        <div>${meetup.time}</div>
+        ${meetup.note ? `<div>${meetup.note}</div>` : ``}
+        ${safeMaps ? `<div style="margin-top:10px;">📍 <a href="${safeMaps}" target="_blank" rel="noopener">Open location in Maps</a></div>` : ``}
+      `;
+
+      // ✅ WhatsApp auto-open to you
+      const yourNumber = "233550340429";
+      const message = encodeURIComponent("I just said YES ❤️🥰 See you on Valentine’s Day!");
+      const waLink = `https://wa.me/${yourNumber}?text=${message}`;
+
+      setTimeout(() => {
+        window.location.href = waLink;
+      }, 900);
+    }
+
+    yesBtn.addEventListener("click", showMeetup);
+
+    noBtn.addEventListener("click", () => {
+      qEl.textContent = noQuestions[Math.min(noCount, noQuestions.length - 1)];
+      hintEl.textContent = noCount < 2 ? "No pressure… but also… pressure 😇" : "You can’t escape love 😌💘";
+
+      const dx = Math.floor(Math.random() * 120) - 60;
+      const dy = Math.floor(Math.random() * 60) - 30;
+      noBtn.style.transform = `translate(${dx}px, ${dy}px)`;
+
+      const scale = 1 + Math.min(0.6, (noCount + 1) * 0.08);
+      yesBtn.style.transform = `scale(${scale})`;
+
+      noCount++;
+    });
+  </script>
+</body>
+</html>
