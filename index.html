@@ -39,7 +39,7 @@
       background:
         radial-gradient(1100px 700px at 25% 15%, rgba(168,85,247,.25), transparent 60%),
         radial-gradient(900px 650px at 80% 55%, rgba(236,72,153,.18), transparent 60%),
-        linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.80));
+        linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.82));
     }
     .bg video{
       position:absolute; inset:0;
@@ -47,7 +47,7 @@
       object-fit:cover;
       filter:saturate(1.05) contrast(1.05);
       transform:scale(1.02);
-      opacity:.35; /* keep it subtle */
+      opacity:.35;
     }
 
     .wrap{
@@ -367,18 +367,18 @@
           <div class="tapzone right" data-nav="next"></div>
         </div>
 
-        <div class="playHint" id="playHint">If a video doesn’t play on Safari, it’s usually the codec (export as H.264 MP4).</div>
+        <div class="playHint" id="playHint">If a video doesn’t play on Safari, export it as H.264 MP4 (AAC).</div>
       </div>
 
       <!-- RIGHT: Storyline + Question -->
       <div class="panel content">
         <div class="hero">
-          <h1 id="heroTitle">Hey you 👀</h1>
-          <p id="heroSub">I made this little page because… you’ve been on my mind. A lot.</p>
+          <h1 id="heroTitle">Heyyy Kez 👀</h1>
+          <p id="heroSub">Just stay with me for a second…</p>
         </div>
 
         <div class="box" id="storyBox">
-          <div class="kicker" id="kicker">A tiny story…</div>
+          <div class="kicker" id="kicker">Do you remember?</div>
           <p class="storyText" id="storyText"></p>
 
           <div class="row">
@@ -421,7 +421,6 @@
       { type: "image", src: "last1.jpg",  label: "💗" },
       { type: "image", src: "last2.jpg",  label: "💗" },
 
-      // Videos
       { type: "video", src: "v2first.mp4",  label: "🎬", mutedAutoplay: true  },
       { type: "video", src: "v2second.mp4", label: "🎬", mutedAutoplay: true  },
       { type: "video", src: "v31.mp4",      label: "🎬", mutedAutoplay: false },
@@ -460,7 +459,7 @@
           v.preload = "metadata";
           v.loop = true;
 
-          // Safari rules: autoplay requires muted
+          // Safari: autoplay requires muted
           v.muted = !!m.mutedAutoplay;
           v.controls = !m.mutedAutoplay;
           if (m.mutedAutoplay) v.autoplay = true;
@@ -476,7 +475,6 @@
         rail.appendChild(s);
       });
 
-      // progress bars
       progress.innerHTML = MEDIA.map(() => `<div class="bar"><span></span></div>`).join("");
       storyCount.textContent = `1 / ${MEDIA.length}`;
       storyTag.textContent = MEDIA[0]?.label || "💗";
@@ -513,8 +511,6 @@
       const s = slides()[idx];
       const v = s?.querySelector("video");
       if (!v) return;
-
-      // only try autoplay videos
       if (!v.autoplay) return;
 
       try{
@@ -610,7 +606,7 @@
     start();
 
     // ==========================
-    // 3) Storyline flow
+    // 3) Storyline flow (your text)
     // ==========================
     const heroTitle = document.getElementById("heroTitle");
     const heroSub = document.getElementById("heroSub");
@@ -623,32 +619,43 @@
 
     const storySteps = [
       {
-        heroTitle: "Hey you 👀",
-        heroSub: "Just give me 10 seconds.",
-        kicker: "A small thing",
-        text: `I made this because you’ve been on my mind.
-Not in a loud way…
-in that quiet “I miss you” type of way 😌`
+        heroTitle: "Heyyy Kez 👀",
+        heroSub: "Just stay with me for a second…",
+        kicker: "Do you remember?",
+        text: `Do you remember that first picture you sent me?
+It was when we had just started talking, a few years ago.
+
+I think you were on a church trip then, and you kept sending me little snapshots of your day.
+
+I remember how much I loved those moments, you know…
+getting a glimpse into your world, one picture at a time.`
       },
       {
-        heroTitle: "You’re different",
-        heroSub: "And I like that.",
-        kicker: "My favorite parts",
-        text: `The way you tease me.
-The way you feed me.
-The way you make normal moments feel like something special.`
+        heroTitle: "Those days…",
+        heroSub: "I still smile when I think about them.",
+        kicker: "My favorite part",
+        text: `It was so fun spending hours talking to you,
+and watching your beautiful face every day.
+
+But you know my favorite part?
+
+Getting upset that you were always waiting until it was so late before you ate 😄`
+      },
+      {
+        heroTitle: "And you know what…",
+        heroSub: "This is the part I don’t joke about.",
+        kicker: "Something real",
+        text: `I've seen you grow into such a beautiful woman, and it's so cute that we're still really good friends.
+
+But somewhere along the way, you stopped being just “someone I talk to”… and started feeling like someone I actually care about a lot.
+
+I don’t say it often, but you really mean more to me than you probably realize.`
       },
       {
         heroTitle: "So…",
-        heroSub: "I’m done pretending it’s small.",
+        heroSub: "I’m just going to say it.",
         kicker: "One question",
         text: `I have one important question for you…`
-      },
-      {
-        heroTitle: "Okay 😄",
-        heroSub: "No running.",
-        kicker: "Ready?",
-        text: `Click next.`
       }
     ];
 
@@ -661,6 +668,9 @@ The way you make normal moments feel like something special.`
       kicker.textContent = s.kicker;
       storyText.textContent = s.text;
       pagePill.textContent = `${step + 1} / ${storySteps.length}`;
+
+      if (step === storySteps.length - 1) nextBtn.textContent = "Next ➜";
+      else nextBtn.textContent = "Next ➜";
     }
 
     nextBtn.addEventListener("click", () => {
