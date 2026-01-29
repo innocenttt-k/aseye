@@ -3,97 +3,160 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
   <title>💌 Valentine?</title>
 
   <style>
     :root{
-      --bg:#0b0b12; --text:#f5f5ff; --muted:#b9b9d6;
-      --yes:#22c55e; --no:#ef4444;
+      --bg:#070711;
+      --text:#f6f6ff;
+      --muted:rgba(245,245,255,.72);
+      --stroke:rgba(255,255,255,.14);
+      --glass:rgba(255,255,255,.08);
+      --glass2:rgba(255,255,255,.05);
+
+      --yes:#22c55e;
+      --no:#ef4444;
+
+      --radius:26px;
+      --shadow:0 30px 90px rgba(0,0,0,.55);
     }
 
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
     body{
-      margin:0; min-height:100vh; display:grid; place-items:center;
-      background: radial-gradient(1200px 600px at 50% 20%, #2a1b5a 0%, var(--bg) 55%);
+      margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: var(--bg);
       color:var(--text);
-      padding:22px;
+      overflow-x:hidden;
     }
 
-    .card{
-      width:min(420px, 100%);
-      background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
-      border:1px solid rgba(255,255,255,0.12);
-      border-radius:22px;
-      box-shadow: 0 18px 60px rgba(0,0,0,0.45);
-      padding:16px;
-      backdrop-filter: blur(10px);
+    /* ===== background (optional video) ===== */
+    .bg{
+      position:fixed; inset:0;
+      z-index:-3;
+      background:
+        radial-gradient(1100px 700px at 25% 15%, rgba(168,85,247,.25), transparent 60%),
+        radial-gradient(900px 650px at 80% 55%, rgba(236,72,153,.18), transparent 60%),
+        linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.80));
+    }
+    .bg video{
+      position:absolute; inset:0;
+      width:100%; height:100%;
+      object-fit:cover;
+      filter:saturate(1.05) contrast(1.05);
+      transform:scale(1.02);
+      opacity:.35; /* keep it subtle */
     }
 
-    h1{ margin:12px 0 8px; font-size:26px; letter-spacing:0.2px; }
-    p{ margin:0 0 12px; color:var(--muted); line-height:1.55; }
-    .question{ font-size:20px; margin:12px 0 16px; color:var(--text); }
-
-    .btns{ display:flex; gap:12px; flex-wrap:wrap; }
-    button{
-      border:0; border-radius:14px; padding:12px 16px; font-size:16px; cursor:pointer;
-      transition: transform .06s ease, filter .15s ease;
-    }
-    button:active{ transform: translateY(1px) scale(.99); }
-    .yes{ background:var(--yes); color:#07210f; font-weight:800; }
-    .no{ background:var(--no); color:#2a0606; font-weight:800; }
-    .small{ font-size:13px; opacity:.9; }
-
-    .result{
-      margin-top:14px;
-      background:rgba(34,197,94,0.12);
-      border:1px solid rgba(34,197,94,0.25);
-      border-radius:16px;
-      padding:14px;
-      display:none;
+    .wrap{
+      min-height:100%;
+      display:grid;
+      place-items:center;
+      padding:24px;
     }
 
-    a{ color:#a7f3d0; font-weight:800; text-decoration:none; }
-    a:hover{ text-decoration:underline; }
+    .shell{
+      width:min(980px, 100%);
+      display:grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap:18px;
+      align-items:stretch;
+    }
+    @media (max-width: 880px){
+      .shell{ grid-template-columns: 1fr; }
+    }
 
-    /* ===== IG Stories Wrapper ===== */
-    .stories{
-      border-radius:20px;
+    .panel{
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, var(--glass), var(--glass2));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
       overflow:hidden;
-      border:1px solid rgba(255,255,255,0.14);
-      background:rgba(0,0,0,0.15);
-      position:relative;
-      margin:6px 0 12px;
-      aspect-ratio: 9 / 16;
-      width:100%;
-      max-height:72vh;
     }
 
-    /* Progress bars */
-    .progress{
-      position:absolute;
-      top:10px; left:10px; right:10px;
-      display:flex; gap:6px;
-      z-index:5;
-      pointer-events:none;
+    /* ===== Left: Stories ===== */
+    .stories{ padding:14px; }
+    .storiesHeader{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      padding:6px 6px 12px;
     }
-    .bar{ flex:1; height:3px; border-radius:999px; background: rgba(255,255,255,0.25); overflow:hidden; }
-    .bar > span{ display:block; height:100%; width:0%; background: rgba(255,255,255,0.9); transform-origin:left; }
-
-    .storyTag{
-      position:absolute;
-      top:20px; left:14px;
-      z-index:6;
+    .brand{
+      display:flex; align-items:center; gap:10px;
+    }
+    .logoDot{
+      width:10px; height:10px; border-radius:999px;
+      background: radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,.2));
+      box-shadow: 0 0 0 6px rgba(255,255,255,.06);
+    }
+    .brandName{
+      font-weight:900;
+      letter-spacing:.2px;
+      font-size:14px;
+      color:rgba(255,255,255,.92);
+    }
+    .chip{
       font-size:12px;
       padding:7px 10px;
       border-radius:999px;
-      background: rgba(0,0,0,0.45);
-      border: 1px solid rgba(255,255,255,0.18);
-      color: rgba(255,255,255,0.92);
-      backdrop-filter: blur(6px);
-      pointer-events:none;
+      background: rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.14);
+      color:rgba(255,255,255,.80);
+      white-space:nowrap;
     }
 
-    /* Slide rail */
+    .frame{
+      position:relative;
+      border-radius:22px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      aspect-ratio: 9 / 16;
+      max-height: 76vh;
+      width:100%;
+    }
+
+    .progress{
+      position:absolute;
+      top:10px; left:10px; right:10px;
+      display:flex; gap:7px;
+      z-index:10;
+      pointer-events:none;
+    }
+    .bar{
+      flex:1; height:3px;
+      border-radius:999px;
+      background: rgba(255,255,255,.20);
+      overflow:hidden;
+    }
+    .bar span{
+      display:block; height:100%; width:0%;
+      background: rgba(255,255,255,.92);
+      transform-origin:left;
+    }
+
+    .overlayTop{
+      position:absolute;
+      top:18px; left:14px; right:14px;
+      display:flex; justify-content:space-between; align-items:center;
+      z-index:11;
+      pointer-events:none;
+    }
+    .tag{
+      font-size:12px;
+      padding:7px 10px;
+      border-radius:999px;
+      background: rgba(0,0,0,.45);
+      border:1px solid rgba(255,255,255,.16);
+      color:rgba(255,255,255,.92);
+      backdrop-filter: blur(8px);
+    }
+
     .rail{
       height:100%;
       display:flex;
@@ -106,404 +169,531 @@
 
     .slide{
       flex:0 0 100%;
-      scroll-snap-align:start;
+      height:100%;
       position:relative;
-      height:100%;
-      background:rgba(0,0,0,0.12);
+      scroll-snap-align:start;
+      background: rgba(0,0,0,.08);
     }
-
     .media{
-      width:100%;
-      height:100%;
+      width:100%; height:100%;
       object-fit:cover;
       display:block;
-      background:rgba(0,0,0,0.2);
+      background: rgba(0,0,0,.2);
     }
 
-    /* Tap zones */
     .tapzone{
-      position:absolute;
-      top:0; bottom:0;
+      position:absolute; top:0; bottom:0;
       width:50%;
-      z-index:6;
+      z-index:12;
     }
     .tapzone.left{ left:0; }
     .tapzone.right{ right:0; }
 
-    /* Fullscreen button */
-    .fullscreen-btn{
+    .fsBtn{
       position:absolute;
-      right:12px;
-      bottom:12px;
-      z-index:7;
-      background:rgba(0,0,0,0.55);
+      right:12px; bottom:12px;
+      z-index:13;
+      background: rgba(0,0,0,.55);
+      border:1px solid rgba(255,255,255,.16);
       color:#fff;
-      border:none;
-      border-radius:12px;
+      border-radius:14px;
       padding:8px 10px;
       font-size:12px;
       cursor:pointer;
       user-select:none;
     }
-    :fullscreen .fullscreen-btn { display:none; }
-    :-webkit-full-screen .fullscreen-btn { display:none; }
+    :fullscreen .fsBtn{ display:none; }
 
-    .slide:fullscreen,
-    .slide:-webkit-full-screen{
-      width:100vw; height:100vh; background:#000;
-    }
-    .slide:fullscreen .media,
-    .slide:-webkit-full-screen .media{
-      width:100%; height:100%;
-      object-fit:contain;
-      background:#000;
-    }
-
-    /* ===== Text story box ===== */
-    .storyline{
-      margin-top:6px;
-      border:1px solid rgba(255,255,255,0.12);
-      background:rgba(255,255,255,0.04);
-      border-radius:18px;
-      padding:14px;
-    }
-    .storyline .kicker{
+    .playHint{
+      margin-top:10px;
       font-size:12px;
-      color:rgba(255,255,255,0.75);
-      margin-bottom:8px;
+      color:rgba(255,255,255,.72);
+      text-align:center;
+      display:none;
+    }
+
+    /* ===== Right: Content ===== */
+    .content{
+      padding:18px;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+    .hero h1{
+      margin:0;
+      font-size:28px;
+      letter-spacing:.2px;
+      line-height:1.15;
+    }
+    .hero p{
+      margin:10px 0 0;
+      color:var(--muted);
+      line-height:1.55;
+    }
+
+    .box{
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      border-radius:20px;
+      padding:16px;
+    }
+    .kicker{
+      font-size:12px;
+      color:rgba(255,255,255,.78);
+      margin-bottom:10px;
       letter-spacing:.2px;
     }
-    .storyline .text{
-      font-size:16px;
-      color:var(--text);
-      line-height:1.55;
+    .storyText{
       margin:0;
+      font-size:16px;
+      line-height:1.65;
+      color:rgba(255,255,255,.94);
       white-space:pre-line;
     }
-    .nextRow{
+    .row{
       display:flex;
       justify-content:space-between;
       align-items:center;
-      margin-top:12px;
       gap:12px;
+      margin-top:12px;
     }
     .pill{
       font-size:12px;
-      padding:6px 10px;
+      padding:7px 10px;
       border-radius:999px;
-      background:rgba(0,0,0,0.35);
-      border:1px solid rgba(255,255,255,0.14);
-      color:rgba(255,255,255,0.85);
+      background: rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.14);
+      color:rgba(255,255,255,.82);
+      white-space:nowrap;
     }
-    .nextBtn{
-      background:rgba(255,255,255,0.12);
-      color:var(--text);
-      font-weight:900;
-      border:1px solid rgba(255,255,255,0.18);
-    }
-    .hidden{ display:none !important; }
 
-    .playHint{
-      margin-top:8px;
-      font-size:12px;
-      color:rgba(255,255,255,0.75);
+    .btn{
+      border:0;
+      border-radius:16px;
+      padding:12px 16px;
+      font-size:16px;
+      font-weight:900;
+      cursor:pointer;
+      transition: transform .06s ease, filter .15s ease;
+    }
+    .btn:active{ transform: translateY(1px) scale(.99); }
+    .nextBtn{
+      background: rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.18);
+      color: rgba(255,255,255,.92);
+    }
+
+    .questionWrap{ display:none; }
+    .q{
+      font-size:20px;
+      font-weight:1000;
+      margin:0 0 14px;
+      letter-spacing:.1px;
+    }
+    .btns{ display:flex; gap:12px; flex-wrap:wrap; }
+    .yes{ background: var(--yes); color:#06210e; }
+    .no{ background: var(--no); color:#2a0606; }
+
+    .small{
+      font-size:13px;
+      color:rgba(245,245,255,.75);
+      margin-top:10px;
+      min-height:18px;
+    }
+
+    .result{
+      margin-top:14px;
+      border-radius:18px;
+      padding:14px;
       display:none;
+      background: rgba(34,197,94,.12);
+      border: 1px solid rgba(34,197,94,.25);
+    }
+    .resultTitle{
+      font-weight:1000;
+      font-size:18px;
+      margin-bottom:8px;
+    }
+    .meet{
+      color:rgba(255,255,255,.95);
+      line-height:1.55;
+    }
+    .meet a{ color:#a7f3d0; font-weight:900; text-decoration:none; }
+    .meet a:hover{ text-decoration:underline; }
+
+    .foot{
+      margin-top:auto;
+      padding-top:8px;
+      font-size:12px;
+      color:rgba(255,255,255,.52);
+      text-align:center;
     }
   </style>
 </head>
 
 <body>
-  <div class="card">
-
-    <!-- IG Stories Media -->
-    <div class="stories" id="stories">
-      <div class="progress" id="progress"></div>
-      <div class="storyTag">Memories 💗 (tap / hold)</div>
-
-      <div class="rail" id="rail">
-        <div class="slide" data-type="img">
-          <img class="media" src="assets/Dee1.jpeg" alt="Photo 1">
-          <button class="fullscreen-btn" type="button">⛶</button>
-          <div class="tapzone left"></div><div class="tapzone right"></div>
-        </div>
-
-        <div class="slide" data-type="img">
-          <img class="media" src="assets/dee2.jpeg" alt="Photo 2">
-          <button class="fullscreen-btn" type="button">⛶</button>
-          <div class="tapzone left"></div><div class="tapzone right"></div>
-        </div>
-
-        <!-- Video 1 (autoplay, muted) -->
-        <div class="slide" data-type="video">
-          <video class="media" muted autoplay loop playsinline preload="metadata">
-            <source src="assets/v1.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
-            <source src="assets/v1.mp4" type="video/mp4">
-            Sorry, your browser can’t play this video.
-          </video>
-          <button class="fullscreen-btn" type="button">⛶</button>
-          <div class="tapzone left"></div><div class="tapzone right"></div>
-        </div>
-
-        <!-- Video 2 (controls + muted for iPhone compatibility) -->
-        <div class="slide" data-type="video">
-          <video class="media" muted playsinline controls preload="metadata">
-            <source src="assets/v2.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
-            <source src="assets/v2.mp4" type="video/mp4">
-            Sorry, your browser can’t play this video.
-          </video>
-          <button class="fullscreen-btn" type="button">⛶</button>
-          <div class="tapzone left"></div><div class="tapzone right"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="playHint" id="playHint">If a video doesn’t play, tap it once ❤️</div>
-
-    <!-- Step-by-step text (shows first) -->
-    <div class="storyline" id="storyBox">
-      <div class="kicker" id="kicker">Hey you 👀</div>
-      <p class="text" id="storyText"></p>
-
-      <div class="nextRow">
-        <span class="pill" id="pagePill">1 / 4</span>
-        <button class="nextBtn" id="nextBtn" type="button">Next ➜</button>
-      </div>
-    </div>
-
-    <!-- Valentine question (hidden until last Next) -->
-    <div id="valSection" class="hidden">
-      <div id="q" class="question">Will you be my Valentine? 💌</div>
-
-      <div class="btns">
-        <button class="yes" id="yesBtn">Yes ❤️</button>
-        <button class="no" id="noBtn">No 🙃</button>
-      </div>
-
-      <p class="small" id="hint" style="margin-top:12px;"></p>
-
-      <div class="result" id="result">
-        <div style="font-size:20px; font-weight:900; margin-bottom:8px;">Yessss! 🎉💘</div>
-        <div id="meetText" style="color:var(--text); line-height:1.45;"></div>
-        <div style="margin-top:10px; color:var(--muted);" class="small">
-          Screenshot this so you don’t forget 😌
-        </div>
-      </div>
-    </div>
-
+  <div class="bg">
+    <!-- Optional: put bg.mp4 in repo root. If missing, it just won’t show -->
+    <video autoplay muted loop playsinline preload="metadata" id="bgVideo">
+      <source src="bg.mp4" type="video/mp4">
+    </video>
   </div>
 
+  <main class="wrap">
+    <section class="shell">
+
+      <!-- LEFT: Stories -->
+      <div class="panel stories">
+        <div class="storiesHeader">
+          <div class="brand">
+            <span class="logoDot"></span>
+            <div class="brandName">Memories</div>
+          </div>
+          <div class="chip">Tap • Swipe • Hold</div>
+        </div>
+
+        <div class="frame" id="frame">
+          <div class="progress" id="progress"></div>
+
+          <div class="overlayTop">
+            <div class="tag" id="storyTag">💗</div>
+            <div class="tag" id="storyCount">1 / 1</div>
+          </div>
+
+          <div class="rail" id="rail"></div>
+
+          <button class="fsBtn" id="fsBtn" type="button">⛶</button>
+          <div class="tapzone left" data-nav="prev"></div>
+          <div class="tapzone right" data-nav="next"></div>
+        </div>
+
+        <div class="playHint" id="playHint">If a video doesn’t play on Safari, it’s usually the codec (export as H.264 MP4).</div>
+      </div>
+
+      <!-- RIGHT: Storyline + Question -->
+      <div class="panel content">
+        <div class="hero">
+          <h1 id="heroTitle">Hey you 👀</h1>
+          <p id="heroSub">I made this little page because… you’ve been on my mind. A lot.</p>
+        </div>
+
+        <div class="box" id="storyBox">
+          <div class="kicker" id="kicker">A tiny story…</div>
+          <p class="storyText" id="storyText"></p>
+
+          <div class="row">
+            <span class="pill" id="pagePill">1 / 4</span>
+            <button class="btn nextBtn" id="nextBtn" type="button">Next ➜</button>
+          </div>
+        </div>
+
+        <div class="box questionWrap" id="questionWrap">
+          <div class="q" id="q">Will you be my Valentine? 💌</div>
+
+          <div class="btns">
+            <button class="btn yes" id="yesBtn" type="button">Yes ❤️</button>
+            <button class="btn no" id="noBtn" type="button">No 🙃</button>
+          </div>
+
+          <div class="small" id="hint"></div>
+
+          <div class="result" id="result">
+            <div class="resultTitle">Yessss! 🎉💘</div>
+            <div class="meet" id="meetText"></div>
+            <div class="small">Opening WhatsApp… 😌</div>
+          </div>
+        </div>
+
+        <div class="foot">Made with ❤️ (and a little courage)</div>
+      </div>
+
+    </section>
+  </main>
+
   <script>
-    // =======================
-    // 1) IG Stories media logic
-    // =======================
-    const rail = document.getElementById("rail");
-    const progress = document.getElementById("progress");
-    const playHint = document.getElementById("playHint");
+    // ==========================
+    // 1) MEDIA (repo root paths)
+    // ==========================
+    const MEDIA = [
+      { type: "image", src: "first1.jpeg", label: "💗" },
+      { type: "image", src: "first2.jpeg", label: "💗" },
+      { type: "image", src: "first3.jpeg", label: "💗" },
+      { type: "image", src: "last1.jpg",  label: "💗" },
+      { type: "image", src: "last2.jpg",  label: "💗" },
 
-    if (rail && progress) {
-      const slides = Array.from(rail.querySelectorAll(".slide"));
-
-      let idx = 0;
-      let running = false;
-      let hold = false;
-      let rafId = null;
-      let scrollT = null;
-      let barStart = 0;
-      let barDuration = 3500;
-
-      const durationFor = (i) => (slides[i].dataset.type === "video" ? 6500 : 3500);
-
-      progress.innerHTML = slides.map(() => `<div class="bar"><span></span></div>`).join("");
-      const bars = Array.from(progress.querySelectorAll(".bar > span"));
-
-      const setIndexFromScroll = () => {
-        const w = rail.clientWidth || 1;
-        const i = Math.round(rail.scrollLeft / w);
-        idx = Math.max(0, Math.min(slides.length - 1, i));
-      };
-
-      const resetBars = () => {
-        bars.forEach((b, i) => b.style.width = (i < idx ? "100%" : "0%"));
-      };
-
-      const stopAnim = () => {
-        running = false;
-        if (rafId) cancelAnimationFrame(rafId);
-        rafId = null;
-      };
-
-      const pauseAllVideos = () => {
-        slides.forEach(s => {
-          const v = s.querySelector("video");
-          if (v && !v.paused) v.pause();
-        });
-      };
-
-      const tryPlayActiveVideo = async () => {
-        const slide = slides[idx];
-        const v = slide.querySelector("video");
-        if (!v) return;
-
-        try {
-          // If it has autoplay, try to start it.
-          await v.play();
-          playHint.style.display = "none";
-        } catch (e) {
-          // Autoplay blocked or codec issue — show hint + keep controls
-          v.controls = true;
-          playHint.style.display = "block";
-        }
-      };
-
-      const goTo = (i) => {
-        idx = (i + slides.length) % slides.length;
-        rail.scrollTo({ left: rail.clientWidth * idx, behavior: "smooth" });
-        restart();
-      };
-
-      const tick = (t) => {
-        if (!running) return;
-        if (hold) { rafId = requestAnimationFrame(tick); return; }
-
-        const p = Math.min(1, (t - barStart) / barDuration);
-        bars[idx].style.width = (p * 100).toFixed(2) + "%";
-
-        if (p >= 1) goTo(idx + 1);
-        else rafId = requestAnimationFrame(tick);
-      };
-
-      const start = () => {
-        if (running) return;
-        running = true;
-        resetBars();
-        barDuration = durationFor(idx);
-        barStart = performance.now();
-        rafId = requestAnimationFrame(tick);
-
-        // media handling
-        pauseAllVideos();
-        tryPlayActiveVideo();
-      };
-
-      const restart = () => { stopAnim(); start(); };
-
-      rail.addEventListener("scroll", () => {
-        setIndexFromScroll();
-        clearTimeout(scrollT);
-        scrollT = setTimeout(() => restart(), 120);
-      });
-
-      rail.addEventListener("click", (e) => {
-        if (e.target.closest(".fullscreen-btn")) return;
-        const left = e.target.closest(".tapzone.left");
-        const right = e.target.closest(".tapzone.right");
-        if (left) goTo(idx - 1);
-        if (right) goTo(idx + 1);
-      });
-
-      rail.addEventListener("touchstart", () => { hold = true; }, { passive:true });
-      rail.addEventListener("touchend", () => { hold = false; }, { passive:true });
-      rail.addEventListener("mousedown", () => { hold = true; });
-      rail.addEventListener("mouseup", () => { hold = false; });
-
-      // Tap on video to play if blocked
-      rail.addEventListener("pointerdown", async (e) => {
-        const v = e.target.closest("video");
-        if (!v) return;
-        try { await v.play(); playHint.style.display = "none"; } catch (_) {}
-      });
-
-      // Fullscreen the SLIDE
-      slides.forEach((s) => {
-        const btn = s.querySelector(".fullscreen-btn");
-        if (!btn) return;
-
-        btn.addEventListener("click", (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-
-          const slide = btn.closest(".slide");
-          const video = slide.querySelector("video");
-
-          if (slide.requestFullscreen) slide.requestFullscreen();
-          else if (slide.webkitRequestFullscreen) slide.webkitRequestFullscreen();
-          else if (video && video.webkitEnterFullscreen) video.webkitEnterFullscreen();
-        }, true);
-      });
-
-      resetBars();
-      start();
-    }
-
-    // =======================
-    // 2) Text storyline (4 steps exactly as you want)
-    // =======================
-    const storySteps = [
-      {
-        kicker: "Hey you 👀",
-        text:
-`Just pause for a second…
-I made something small for you.
-
-Because you’ve been on my mind a little too much lately 😌`
-      },
-      {
-        kicker: "",
-        text:
-`I love the way you tease me.
-The way you make me feel, the way you feed me,
-and how you turn normal moments into something special.`
-      },
-      {
-        kicker: "",
-        text:
-`I have one important question for you…`
-      },
-      {
-        kicker: "",
-        text:
-`Okay… click next 😄`
-      }
+      // Videos
+      { type: "video", src: "v2first.mp4",  label: "🎬", mutedAutoplay: true  },
+      { type: "video", src: "v2second.mp4", label: "🎬", mutedAutoplay: true  },
+      { type: "video", src: "v31.mp4",      label: "🎬", mutedAutoplay: false },
+      { type: "video", src: "v32.mp4",      label: "🎬", mutedAutoplay: false }
     ];
 
-    const storyText = document.getElementById("storyText");
+    // ==========================
+    // 2) Stories build + logic
+    // ==========================
+    const rail = document.getElementById("rail");
+    const progress = document.getElementById("progress");
+    const storyTag = document.getElementById("storyTag");
+    const storyCount = document.getElementById("storyCount");
+    const playHint = document.getElementById("playHint");
+    const frame = document.getElementById("frame");
+    const fsBtn = document.getElementById("fsBtn");
+
+    function buildSlides(){
+      rail.innerHTML = "";
+      MEDIA.forEach((m) => {
+        const s = document.createElement("div");
+        s.className = "slide";
+        s.dataset.type = m.type;
+
+        if (m.type === "image") {
+          const img = document.createElement("img");
+          img.className = "media";
+          img.src = m.src;
+          img.alt = "memory";
+          s.appendChild(img);
+        } else {
+          const v = document.createElement("video");
+          v.className = "media";
+          v.setAttribute("playsinline", "");
+          v.setAttribute("webkit-playsinline", "");
+          v.preload = "metadata";
+          v.loop = true;
+
+          // Safari rules: autoplay requires muted
+          v.muted = !!m.mutedAutoplay;
+          v.controls = !m.mutedAutoplay;
+          if (m.mutedAutoplay) v.autoplay = true;
+
+          const src = document.createElement("source");
+          src.src = m.src;
+          src.type = "video/mp4";
+          v.appendChild(src);
+
+          s.appendChild(v);
+        }
+
+        rail.appendChild(s);
+      });
+
+      // progress bars
+      progress.innerHTML = MEDIA.map(() => `<div class="bar"><span></span></div>`).join("");
+      storyCount.textContent = `1 / ${MEDIA.length}`;
+      storyTag.textContent = MEDIA[0]?.label || "💗";
+    }
+
+    buildSlides();
+
+    const slides = () => Array.from(rail.querySelectorAll(".slide"));
+    const bars = () => Array.from(progress.querySelectorAll(".bar span"));
+
+    let idx = 0;
+    let running = false;
+    let hold = false;
+    let rafId = null;
+    let barStart = 0;
+    let barDuration = 3500;
+
+    const durationFor = (i) => (slides()[i]?.dataset.type === "video" ? 6500 : 3500);
+
+    function setActiveUI(){
+      storyCount.textContent = `${idx + 1} / ${MEDIA.length}`;
+      storyTag.textContent = MEDIA[idx]?.label || "💗";
+      bars().forEach((b, i) => b.style.width = (i < idx ? "100%" : "0%"));
+    }
+
+    function pauseAllVideos(){
+      slides().forEach(s => {
+        const v = s.querySelector("video");
+        if (v && !v.paused) v.pause();
+      });
+    }
+
+    async function tryPlayActiveVideo(){
+      const s = slides()[idx];
+      const v = s?.querySelector("video");
+      if (!v) return;
+
+      // only try autoplay videos
+      if (!v.autoplay) return;
+
+      try{
+        await v.play();
+        playHint.style.display = "none";
+      }catch(e){
+        v.controls = true;
+        playHint.style.display = "block";
+      }
+    }
+
+    function setIndexFromScroll(){
+      const w = rail.clientWidth || 1;
+      const i = Math.round(rail.scrollLeft / w);
+      idx = Math.max(0, Math.min(MEDIA.length - 1, i));
+    }
+
+    function stopAnim(){
+      running = false;
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+
+    function goTo(i){
+      idx = (i + MEDIA.length) % MEDIA.length;
+      rail.scrollTo({ left: rail.clientWidth * idx, behavior: "smooth" });
+      restart();
+    }
+
+    function tick(t){
+      if (!running) return;
+      if (hold) { rafId = requestAnimationFrame(tick); return; }
+
+      const p = Math.min(1, (t - barStart) / barDuration);
+      const b = bars()[idx];
+      if (b) b.style.width = (p * 100).toFixed(2) + "%";
+
+      if (p >= 1) goTo(idx + 1);
+      else rafId = requestAnimationFrame(tick);
+    }
+
+    function start(){
+      if (running) return;
+      running = true;
+
+      setActiveUI();
+      barDuration = durationFor(idx);
+      barStart = performance.now();
+      rafId = requestAnimationFrame(tick);
+
+      pauseAllVideos();
+      tryPlayActiveVideo();
+    }
+
+    function restart(){ stopAnim(); start(); }
+
+    // scroll sync
+    let scrollT = null;
+    rail.addEventListener("scroll", () => {
+      setIndexFromScroll();
+      clearTimeout(scrollT);
+      scrollT = setTimeout(() => restart(), 110);
+    });
+
+    // tap zones
+    frame.addEventListener("click", (e) => {
+      if (e.target.closest("video") || e.target.closest("button")) return;
+      const nav = e.target.closest(".tapzone")?.dataset.nav;
+      if (nav === "prev") goTo(idx - 1);
+      if (nav === "next") goTo(idx + 1);
+    });
+
+    // hold to pause
+    frame.addEventListener("touchstart", () => { hold = true; }, { passive:true });
+    frame.addEventListener("touchend", () => { hold = false; }, { passive:true });
+    frame.addEventListener("mousedown", () => { hold = true; });
+    frame.addEventListener("mouseup", () => { hold = false; });
+
+    // tap video to play if blocked
+    frame.addEventListener("pointerdown", async (e) => {
+      const v = e.target.closest("video");
+      if (!v) return;
+      try{ await v.play(); playHint.style.display = "none"; }catch(_){}
+    }, true);
+
+    // fullscreen
+    fsBtn.addEventListener("click", (e) => {
+      e.preventDefault(); e.stopPropagation();
+      if (frame.requestFullscreen) frame.requestFullscreen();
+      else if (frame.webkitRequestFullscreen) frame.webkitRequestFullscreen();
+    });
+
+    start();
+
+    // ==========================
+    // 3) Storyline flow
+    // ==========================
+    const heroTitle = document.getElementById("heroTitle");
+    const heroSub = document.getElementById("heroSub");
     const kicker = document.getElementById("kicker");
+    const storyText = document.getElementById("storyText");
     const pagePill = document.getElementById("pagePill");
     const nextBtn = document.getElementById("nextBtn");
     const storyBox = document.getElementById("storyBox");
-    const valSection = document.getElementById("valSection");
+    const questionWrap = document.getElementById("questionWrap");
+
+    const storySteps = [
+      {
+        heroTitle: "Hey you 👀",
+        heroSub: "Just give me 10 seconds.",
+        kicker: "A small thing",
+        text: `I made this because you’ve been on my mind.
+Not in a loud way…
+in that quiet “I miss you” type of way 😌`
+      },
+      {
+        heroTitle: "You’re different",
+        heroSub: "And I like that.",
+        kicker: "My favorite parts",
+        text: `The way you tease me.
+The way you feed me.
+The way you make normal moments feel like something special.`
+      },
+      {
+        heroTitle: "So…",
+        heroSub: "I’m done pretending it’s small.",
+        kicker: "One question",
+        text: `I have one important question for you…`
+      },
+      {
+        heroTitle: "Okay 😄",
+        heroSub: "No running.",
+        kicker: "Ready?",
+        text: `Click next.`
+      }
+    ];
 
     let step = 0;
 
-    function renderStep() {
+    function renderStep(){
       const s = storySteps[step];
-      kicker.textContent = s.kicker || " ";
+      heroTitle.textContent = s.heroTitle;
+      heroSub.textContent = s.heroSub;
+      kicker.textContent = s.kicker;
       storyText.textContent = s.text;
       pagePill.textContent = `${step + 1} / ${storySteps.length}`;
-      nextBtn.textContent = "Next ➜";
     }
 
     nextBtn.addEventListener("click", () => {
-      if (step < storySteps.length - 1) {
+      if (step < storySteps.length - 1){
         step++;
         renderStep();
       } else {
-        storyBox.classList.add("hidden");
-        valSection.classList.remove("hidden");
+        storyBox.style.display = "none";
+        questionWrap.style.display = "block";
       }
     });
 
     renderStep();
 
-    // =======================
-    // 3) Valentine logic + WhatsApp
-    // =======================
+    // ==========================
+    // 4) Valentine + WhatsApp
+    // ==========================
     const meetup = {
       title: "Meet me at: Café Bar Noire",
       time: "Time: 9:00pm",
       note: "Dress code: Maximum Exposure 😍",
       mapsUrl: "https://maps.app.goo.gl/K8G3oa5vZDsc2ncR6"
     };
+
+    const YOUR_WA = "233550340429";
+    const WA_MESSAGE = "I just said YES ❤️🥰 See you on Valentine’s Day!";
+
+    const qEl = document.getElementById("q");
+    const hintEl = document.getElementById("hint");
+    const resultEl = document.getElementById("result");
+    const meetTextEl = document.getElementById("meetText");
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
 
     const noQuestions = [
       "Are you sure? 🥺",
@@ -513,16 +703,9 @@ and how you turn normal moments into something special.`
       "Alright, choose wisely… 💘"
     ];
 
-    const qEl = document.getElementById("q");
-    const hintEl = document.getElementById("hint");
-    const resultEl = document.getElementById("result");
-    const meetTextEl = document.getElementById("meetText");
-    const yesBtn = document.getElementById("yesBtn");
-    const noBtn = document.getElementById("noBtn");
-
     let noCount = 0;
 
-    function showMeetup() {
+    function showMeetupAndWhatsApp(){
       qEl.textContent = "Best decision ever 😌💖";
       hintEl.textContent = "";
       noBtn.style.display = "none";
@@ -537,17 +720,11 @@ and how you turn normal moments into something special.`
         ${safeMaps ? `<div style="margin-top:10px;">📍 <a href="${safeMaps}" target="_blank" rel="noopener">Open location in Maps</a></div>` : ``}
       `;
 
-      // ✅ WhatsApp auto-open to you
-      const yourNumber = "233550340429";
-      const message = encodeURIComponent("I just said YES ❤️🥰 See you on Valentine’s Day!");
-      const waLink = `https://wa.me/${yourNumber}?text=${message}`;
-
-      setTimeout(() => {
-        window.location.href = waLink;
-      }, 900);
+      const wa = `https://wa.me/${YOUR_WA}?text=${encodeURIComponent(WA_MESSAGE)}`;
+      setTimeout(() => { window.location.href = wa; }, 900);
     }
 
-    yesBtn.addEventListener("click", showMeetup);
+    yesBtn.addEventListener("click", showMeetupAndWhatsApp);
 
     noBtn.addEventListener("click", () => {
       qEl.textContent = noQuestions[Math.min(noCount, noQuestions.length - 1)];
@@ -562,6 +739,12 @@ and how you turn normal moments into something special.`
 
       noCount++;
     });
+
+    // background video fallback
+    const bgVideo = document.getElementById("bgVideo");
+    if (bgVideo){
+      bgVideo.addEventListener("error", () => { bgVideo.style.display = "none"; });
+    }
   </script>
 </body>
 </html>
